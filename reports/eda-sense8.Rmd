@@ -16,9 +16,7 @@ library(here)
 theme_set(theme_bw())
 ```
 
-Analisaremos os episódios da falecida série Sense8. 
-
-Houve duas temporadas: quais foram os melhores episódios? A melhor temporada?
+Primeiramente, vamos importar os dados.
 
 ```{r}
 episodes = read_csv(here("data/series_from_imdb.csv"), 
@@ -27,23 +25,52 @@ episodes = read_csv(here("data/series_from_imdb.csv"),
                                      series_name = col_character(), 
                                      episode = col_character(), 
                                      url = col_character(),
-                                     season = col_character())) %>% 
-    filter(series_name == "Sense8") 
+                                     season = col_character()))
 ```
+
+Ver sobre quais séries a base de dados possui informações.
+
+```{r}
+episodes %>%
+    arrange(series_name) %>% 
+    select(series_name) %>%
+    unique()
+
+```
+
+Escolhendo as séries. critério: séries que possuem numero de temporadas semelhantes.
+Quais séries? Game of thrones, Friends, Black Mirror.
+
+```{r}
+episodes_series = episodes %>% 
+    filter(series_name %in% c("Game of Thrones", "American Horror Story", "Breaking Bad"))
+
+```
+
 
 ## Quantas avaliações temos por episódio? 
 
 Cada episódio foi avaliado por um número diferente de usuários do IMDB. Vejamos como é essa distribuição. 
 
 ```{r}
-episodes %>% 
-    ggplot(aes(x = season, y = user_votes)) +
-    geom_violin() + 
-    geom_jitter(width = .07) 
+episodes_series %>%
+    ggplot(aes(x = season, y = user_rating)) +
+    geom_boxplot(aes(color = season)) +
+    facet_grid(~ series_name)
+    
+```
+
+# Avaliações dos usuários ao longo da duração da série.
+
+```{r}
+episodes_series %>% 
+    ggplot(aes(x = series_ep, y = user_rating)) +
+    geom_line(aes(color = series_name)) +
+    ylim(6, 10)
 ```
 
 
-```{r}
+```{r} 
 episodes %>% 
     ggplot(aes(x = season_ep, y = user_votes))  + 
     geom_line() + 
