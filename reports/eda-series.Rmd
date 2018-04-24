@@ -1,0 +1,60 @@
+---
+title: "Dados sobre séries de TV."
+author: "Valter Lucena"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_float: yes
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(here)
+theme_set(theme_bw())
+```
+
+Esta análise será realizada utilizando dados sobre avaliações de espisódios de séries presentes no [IMDB](https://www.imdb.com). Mais informações sobre esses dados podem ser encontradas [neste](https://github.com/nazareno/imdb-series) repositório do prof. Nazareno.
+
+# Escolhendo as séries.
+
+Primeiramente, vamos importar os dados e selecionar as séries que serão analisadas.
+
+```{r}
+episodes = read_csv(here("data/series_from_imdb.csv"), 
+                    progress = FALSE,
+                    col_types = cols(.default = col_double(), 
+                                     series_name = col_character(), 
+                                     episode = col_character(), 
+                                     url = col_character(),
+                                     season = col_character()))
+```
+
+Agora, vamos ver sobre quais séries a base de dados possui informações.
+
+```{r}
+episodes %>%
+    arrange(series_name) %>% 
+    select(series_name) %>%
+    unique()
+```
+
+Dadas as séries acima, resolvi escolher séries que possuem uma quantidade semelhante de temporadas. As séries escolhidas foram:
+
+* American Horror Story
+* Breaking Bad
+* Game of Thrones
+
+Até a época onde esses dados foram coletados (julho de 2017), a base de dados possui informações sobre os episódios das 5 ou 6 primeiras temporadas das séries escolhidas.
+
+Reduziremos, então, a base de dados original para uma que contenha apenas informações destas séries.
+
+```{r}
+escolhidas = episodes %>% 
+    filter(series_name %in% c("American Horror Story", "Breaking Bad", "Game of Thrones"))
+```
+
+
