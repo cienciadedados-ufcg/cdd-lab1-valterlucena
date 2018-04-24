@@ -19,7 +19,7 @@ theme_set(theme_bw())
 
 Esta análise será realizada utilizando dados sobre avaliações de espisódios de séries presentes no [IMDB](https://www.imdb.com). Mais informações sobre esses dados podem ser encontradas [neste](https://github.com/nazareno/imdb-series) repositório do prof. Nazareno.
 
-# Escolha das séries e entendimento dos dados
+### Escolha das séries e entendimento dos dados
 
 Primeiramente, vamos importar os dados e selecionar as séries que serão analisadas.
 
@@ -59,20 +59,45 @@ escolhidas = episodes %>%
 
 Antes de começar a analisar as séries, vamos tentar entender o comportamento dos dados que possuímos. Os gráficos são uma boa forma de fazer isso, pois possibilitam a identificação visual de certos aspectos que seriam mais difíceis de perceber analisando cada linha da nossa base de dados.
 
-Para isso, iniciaremos plotando um gráfico de pontos mostrando a avalição geral dos episódios ao longo da série, onde cada ponto representa a nota de um determinado episódio de uma série.
+Para isso, iniciaremos plotando um gráfico de pontos mostrando a avalição geral dos episódios da série, onde cada ponto representa a nota de um determinado episódio de uma série.
 
 ```{r}
 escolhidas %>% 
     mutate (Série = series_name) %>% 
-    ggplot(aes(x = series_ep, y = user_rating, color = Série)) +
-    geom_point(alpha = 0.7) +
-    xlab("Episódio") +
+    ggplot(aes(x = Série, y = user_rating, color = Série)) +
+    geom_jitter(alpha = 0.7) +
+    xlab("Série") +
     ylab("Nota do episódio") +
     ggtitle("Avaliação geral dos episódios ao longo da série")
 ```
 
 A partir do gráfico, já podemos observar que os pontos para as notas dos episódios de *American Horror Story* estão mais abaixo no gráfico do que os para *Breaking Bad* e *Game of Thrones*, e que, nessas duas, os pontos se distribuem geralmente na mesma região, um pouco mais acima. Porém, antes de chegar a qualquer conclusão, vamos examinar essas informações mais minuciosamente.
 
-# Perguntas
+### Perguntas
 
-## Qual das séries escolhidas é a mais bem avaliada no IMDB?
+### Qual das séries escolhidas é a mais bem avaliada no IMDB? A diferença é grande? Pequena?
+
+Para ajudar a responder esta pergunta, vamos visualizar a distribuição das notas a partir de outro gráfico, o *box-plot* (todo: explicar o box). 
+
+```{r}
+escolhidas %>% 
+    mutate(Série = series_name) %>% 
+    ggplot(aes(x = Série, y = user_rating, color = Série)) +
+    geom_boxplot()
+```
+
+Como podemos observar, as notas de metade dos episódios de *Breaking Bad* e *Game of Thrones* são maiores que a maioria das notas dos episódios de *American Horror Story*. Assim, é possível concluir que *American Horror Story* não é a série mais bem avaliada entre as escolhidas.
+
+#### ao longo da serie
+
+```{r}
+escolhidas %>% 
+    filter(! (series_name == "American Horror Story")) %>% 
+    mutate(Série = series_name) %>% 
+    ggplot(aes(x = series_ep, y = user_rating, color = Série)) +
+    geom_area(aes(fill = Série)) +
+    facet_grid(~ Série) +
+    xlab("Episódios") +
+    ylab("Avaliações")
+```
+
