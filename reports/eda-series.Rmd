@@ -19,7 +19,7 @@ theme_set(theme_bw())
 
 Esta análise será realizada utilizando dados sobre avaliações de espisódios de séries presentes no [IMDB](https://www.imdb.com). Mais informações sobre esses dados podem ser encontradas [neste](https://github.com/nazareno/imdb-series) repositório do prof. Nazareno.
 
-# Escolhendo as séries.
+# Escolha das séries e entendimento dos dados
 
 Primeiramente, vamos importar os dados e selecionar as séries que serão analisadas.
 
@@ -44,9 +44,9 @@ episodes %>%
 
 Dadas as séries acima, resolvi escolher séries que possuem uma quantidade semelhante de temporadas. As séries escolhidas foram:
 
-* American Horror Story
-* Breaking Bad
-* Game of Thrones
+* *American Horror Story*
+* *Breaking Bad*
+* *Game of Thrones*
 
 Até a época onde esses dados foram coletados (julho de 2017), a base de dados possui informações sobre os episódios das 5 ou 6 primeiras temporadas das séries escolhidas.
 
@@ -57,4 +57,22 @@ escolhidas = episodes %>%
     filter(series_name %in% c("American Horror Story", "Breaking Bad", "Game of Thrones"))
 ```
 
+Antes de começar a analisar as séries, vamos tentar entender o comportamento dos dados que possuímos. Os gráficos são uma boa forma de fazer isso, pois possibilitam a identificação visual de certos aspectos que seriam mais difíceis de perceber analisando cada linha da nossa base de dados.
 
+Para isso, iniciaremos plotando um gráfico de pontos mostrando a avalição geral dos episódios ao longo da série, onde cada ponto representa a nota de um determinado episódio de uma série.
+
+```{r}
+escolhidas %>% 
+    mutate (Série = series_name) %>% 
+    ggplot(aes(x = series_ep, y = user_rating, color = Série)) +
+    geom_point(alpha = 0.7) +
+    xlab("Episódio") +
+    ylab("Nota do episódio") +
+    ggtitle("Avaliação geral dos episódios ao longo da série")
+```
+
+A partir do gráfico, já podemos observar que os pontos para as notas dos episódios de *American Horror Story* estão mais abaixo no gráfico do que os para *Breaking Bad* e *Game of Thrones*, e que, nessas duas, os pontos se distribuem geralmente na mesma região, um pouco mais acima. Porém, antes de chegar a qualquer conclusão, vamos examinar essas informações mais minuciosamente.
+
+# Perguntas
+
+## Qual das séries escolhidas é a mais bem avaliada no IMDB?
