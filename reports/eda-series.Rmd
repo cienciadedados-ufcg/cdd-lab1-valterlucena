@@ -19,7 +19,7 @@ theme_set(theme_bw())
 
 Esta análise será realizada utilizando dados sobre avaliações de espisódios de séries presentes no [IMDB](https://www.imdb.com). Mais informações sobre esses dados podem ser encontradas [neste](https://github.com/nazareno/imdb-series) repositório do prof. Nazareno.
 
-### Escolha das séries e entendimento dos dados
+# Escolha das séries e entendimento dos dados
 
 Primeiramente, vamos importar os dados e selecionar as séries que serão analisadas.
 
@@ -54,7 +54,9 @@ Reduziremos, então, a base de dados original para uma que contenha apenas infor
 
 ```{r}
 escolhidas = episodes %>% 
-    filter(series_name %in% c("American Horror Story", "Breaking Bad", "Game of Thrones"))
+    filter(series_name %in% c("American Horror Story", 
+                              "Breaking Bad", 
+                              "Game of Thrones"))
 ```
 
 Antes de começar a analisar as séries, vamos tentar entender o comportamento dos dados que possuímos. Os gráficos são uma boa forma de fazer isso, pois possibilitam a identificação visual de certos aspectos que seriam mais difíceis de perceber analisando cada linha da nossa base de dados.
@@ -64,7 +66,9 @@ Para isso, iniciaremos plotando um gráfico de pontos mostrando a avalição ger
 ```{r}
 escolhidas %>% 
     mutate (Série = series_name) %>% 
-    ggplot(aes(x = Série, y = user_rating, color = Série)) +
+    ggplot(aes(x = Série, 
+               y = user_rating, 
+               color = Série)) +
     geom_jitter(alpha = 0.7) +
     xlab("Série") +
     ylab("Nota do episódio") +
@@ -73,31 +77,92 @@ escolhidas %>%
 
 A partir do gráfico, já podemos observar que os pontos para as notas dos episódios de *American Horror Story* estão mais abaixo no gráfico do que os para *Breaking Bad* e *Game of Thrones*, e que, nessas duas, os pontos se distribuem geralmente na mesma região, um pouco mais acima. Porém, antes de chegar a qualquer conclusão, vamos examinar essas informações mais minuciosamente.
 
-### Perguntas
+# Perguntas
 
-### Qual das séries escolhidas é a mais bem avaliada no IMDB? A diferença é grande? Pequena?
+## Qual das séries escolhidas é a mais bem avaliada no IMDB? A diferença é grande? Pequena?
 
-Para ajudar a responder esta pergunta, vamos visualizar a distribuição das notas a partir de outro gráfico, o *box-plot* (todo: explicar o box). 
+Para ajudar a responder esta pergunta, vamos visualizar a distribuição das notas a partir de outro gráfico, o *box-plot*. Este tipo de gráfico permite observar a distribuição e valores discrepantes dos dados, e nele estão representadas as seguintes medidas estatísticas:
+
+* **Valor mínimo e máximo** - A linha horizontal superior representa o valor máximo, e a inferior, o valor mínimo.
+* **IQR (*Interquartile Range - Amplitude Interquartil*)** - A altura do retângulo entre as duas linhas horizontais representa a amplitude interquartil, que avalia a dispersão dos dados em torno da medida central.
+* **Mediana** - A medida central citada anteriormente. Representada pela linha horizontal que divide o retângulo em duas partes. Acima desta linha, até a linha horizontal superior, encontram-se 50% das observações cujos valores são maiores que a mediana, e abaixo dela, até a linha horizontal inferior, os 50% cujos valores são menores. 
+* **Valores discrepantes** - Nem sempre aparecem no gráfico, e indicam valores atípicos, extremos ou *outliers*.
 
 ```{r}
 escolhidas %>% 
     mutate(Série = series_name) %>% 
-    ggplot(aes(x = Série, y = user_rating, color = Série)) +
-    geom_boxplot()
+    ggplot(aes(x = Série, 
+               y = user_rating, 
+               color = Série)) +
+    geom_boxplot() +
+    stat_boxplot(geom = 'errorbar') +
+    ylab("Avaliações dos usuários") +
+    ggtitle("Distribuição das avaliações dos espisódios por série")
 ```
 
-Como podemos observar, as notas de metade dos episódios de *Breaking Bad* e *Game of Thrones* são maiores que a maioria das notas dos episódios de *American Horror Story*. Assim, é possível concluir que *American Horror Story* não é a série mais bem avaliada entre as escolhidas.
+Como podemos observar, as notas de metade dos episódios de *Breaking Bad* e *Game of Thrones* são maiores que a maioria das notas dos episódios de *American Horror Story*. Assim, é possível concluir que *American Horror Story* não é a série mais bem avaliada entre as escolhidas, e que *Breaking Bad* e *Game of Thrones* são boas candidatas para este título.
 
-#### ao longo da serie
+Examinemos, agora, algumas estatísticas sobre as avaliações dos episódios dessas duas séries. 
 
 ```{r}
-escolhidas %>% 
-    filter(! (series_name == "American Horror Story")) %>% 
-    mutate(Série = series_name) %>% 
-    ggplot(aes(x = series_ep, y = user_rating, color = Série)) +
-    geom_area(aes(fill = Série)) +
-    facet_grid(~ Série) +
-    xlab("Episódios") +
-    ylab("Avaliações")
+# Retira American Horror Story das séries analisadas.
+candidatas = escolhidas %>% 
+    filter(! (series_name == "American Horror Story"))
+
+# Reúne algumas estatísticas sobre as avaliações dos episódios.
+candidatas %>% 
+    group_by(series_name) %>% 
+    summarise(Máximo = max(user_rating),
+              Mínimo = min(user_rating),
+              Mediana = median(user_rating),
+              Média = mean(user_rating),
+              Desvio_Padrão = sd(user_rating))
+
 ```
 
+Na tabela, podemos ver que o valor da média para *Game of Thrones* é maior que a de *Breaking Bad*. Porém, a média é facilmente afetada por valores extremos, e a diferença entre o valor máximo e mínimo de *Breaking Bad* é maior que a de *Game of Thrones*. Mesmo assim, a diferença entre essas duas médias é muito pequena, de 0.05. Por isso, resolvi não utilizar a média como critério de avaliação para a série mais bem avaliada.
+
+As informações que conseguimos a partir destes valores foram:
+
+1. O episódio com pior avaliação de *Game of Thrones* possui uma avaliação melhor do que o episódio com pior avaliação de *Breaking Bad*.
+2. A mediana de *Game of Thrones* é maior, porém por uma diferença de 0.05.
+3. O desvio padrão de *Breaking Bad* é maior que o de *Game of Thrones*. Isto significa que as notas das avaliações dos episódios de *Game of Thrones* se concentram mais próximas de um valor e não variam tanto como as de *Breaking Bad*.
+
+Nossa base de dados possui informações sobre a proporção de usuários que avaliaram o episódio de uma série com uma nota específica, que vai de 1 à 10. Juntamente com as informações conseguidas anteriormente, a série mais bem avaliada será a que possuir a menor proporção de usuários que avaliaram seus episódios com nota mínima, e a maior proporção de usuários que avaliaram seus episódios com nota máxima. Vamos analisar isto graficamente.
+
+```{r}
+# Mostra a proporção de episódios avaliados com nota 1
+candidatas %>% 
+    mutate(Séries = series_name) %>% 
+    ggplot(aes(x = series_ep,
+               y = (r1) * 100,
+               color = Séries,
+               fill = Séries)) +
+    geom_violin(color = "black",
+                alpha = .7) +
+    facet_wrap(~ Séries) +
+    xlab("Número do Episódio") +
+    ylab("Usuários (%) ") +
+    ggtitle("Proporção de episódio que foram avaliados como nota mínima (1)")
+
+# Mostra a proporção de episódios avaliados com nota 10
+candidatas %>% 
+    mutate(Séries = series_name) %>% 
+    ggplot(aes(x = series_ep,
+               y = (r10) * 100,
+               color = Séries,
+               fill = Séries)) +
+    geom_violin(color = "black",
+                alpha = .7) +
+    facet_wrap(~ Séries) +
+    xlab("Número do Episódio") +
+    ylab("Usuários (%)") +
+    ggtitle("Proporção de episódio que foram avaliados como nota máxima (10)")
+```
+
+A partir desses gráficos, obtemos as seguintes informações:
+
+1. A proporção de usuários que avaliariam com nota 1 os episódios de *Breaking Bad* se concentra na faixa de 3% a 6%, e a dos que avaliaram com nota 10 se concentra ao redor dos 40%.
+2. A proporção de usuários que avaliaram com nota 1 os episódios de *Game of Thrones* se concentra na faixa abaixo de 3%, e a dos que avaliaram com nota 10 se concentra na faixa dos 40% à 50%.
+
+Utilizando das estatísticas analisadas anteriormente, e dos resultados que foram obtidos no último gráfico, podemos concluir que, entre as séries escolhidas, *Game of Thrones* é a série mais bem avaliada no IMDB.
