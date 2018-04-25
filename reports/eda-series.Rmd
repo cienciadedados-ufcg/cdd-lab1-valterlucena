@@ -143,7 +143,7 @@ candidatas %>%
     facet_wrap(~ Séries) +
     xlab("Número do Episódio") +
     ylab("Usuários (%) ") +
-    ggtitle("Proporção de episódio que foram avaliados como nota mínima (1)")
+    ggtitle("Proporção de episódio que foram avaliados com nota mínima (1)")
 
 # Mostra a proporção de episódios avaliados com nota 10
 candidatas %>% 
@@ -157,7 +157,7 @@ candidatas %>%
     facet_wrap(~ Séries) +
     xlab("Número do Episódio") +
     ylab("Usuários (%)") +
-    ggtitle("Proporção de episódio que foram avaliados como nota máxima (10)")
+    ggtitle("Proporção de episódio que foram avaliados com nota máxima (10)")
 ```
 
 A partir desses gráficos, obtemos as seguintes informações:
@@ -166,3 +166,27 @@ A partir desses gráficos, obtemos as seguintes informações:
 2. A proporção de usuários que avaliaram com nota 1 os episódios de *Game of Thrones* se concentra na faixa abaixo de 3%, e a dos que avaliaram com nota 10 se concentra na faixa dos 40% à 50%.
 
 Utilizando das estatísticas analisadas anteriormente, e dos resultados que foram obtidos no último gráfico, podemos concluir que, entre as séries escolhidas, *Game of Thrones* é a série mais bem avaliada no IMDB.
+
+## A avaliação muda de acordo com as temporadas da série?
+
+```{r}
+escolhidas %>% 
+    mutate(Série = series_name) %>% 
+    ggplot(aes(x = season,
+               y = user_rating,
+               color = Série)) +
+    geom_boxplot() +
+    facet_wrap(~ Série)
+```
+
+## Qual das séries escolhidas tem episódios de qualidade mais irregular segundo o IMDB? A diferença é grande? Pequena?
+
+```{r}
+escolhidas %>% 
+    mutate(Série = series_name) %>% 
+    ggplot(aes(x = series_ep,
+               y = user_rating,
+               color = Série)) +
+    geom_line()
+```
+
