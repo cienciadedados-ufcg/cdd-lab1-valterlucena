@@ -75,7 +75,7 @@ escolhidas %>%
     ggtitle("Avaliação geral dos episódios ao longo da série")
 ```
 
-A partir do gráfico, já podemos observar que os pontos para as notas dos episódios de *American Horror Story* estão mais abaixo no gráfico do que os para *Breaking Bad* e *Game of Thrones*, e que, nessas duas, os pontos se distribuem geralmente na mesma região, um pouco mais acima. Porém, antes de chegar a qualquer conclusão, vamos examinar essas informações mais minuciosamente.
+A partir do gráfico, podemos observar que os pontos para as notas dos episódios de *American Horror Story* estão mais abaixo no gráfico do que os para *Breaking Bad* e *Game of Thrones*, e que, nessas duas, os pontos se distribuem geralmente na mesma região, um pouco mais acima. Porém, antes de chegar a qualquer conclusão, vamos examinar essas informações mais minuciosamente.
 
 # Perguntas
 
@@ -107,7 +107,7 @@ Examinemos, agora, algumas estatísticas sobre as avaliações dos episódios de
 ```{r}
 # Retira American Horror Story das séries analisadas.
 candidatas = escolhidas %>% 
-    filter(! (series_name == "American Horror Story"))
+    filter(!(series_name == "American Horror Story"))
 
 # Reúne algumas estatísticas sobre as avaliações dos episódios.
 candidatas %>% 
@@ -174,19 +174,89 @@ escolhidas %>%
     mutate(Série = series_name) %>% 
     ggplot(aes(x = season,
                y = user_rating,
-               color = Série)) +
-    geom_boxplot() +
-    facet_wrap(~ Série)
+               fill = Série)) +
+    geom_col(position = position_identity()) +
+    facet_wrap(~ Série) +
+    xlab("Temporada") +
+    ylab("Avaliações dos usuários") +
+    ggtitle("Avaliações dos usuários para as temporadas de cada série")
 ```
+
+Como podemos observar pelo gráfico de colunas, as avaliações das três séries mudam de acordo com a temporada, mas ainda mantêm-se num intervalo de valores parecidos. *Game of Thrones* mantém suas avaliações sempre em valores próximos, em *American Horror Story* esses valores variam mais, porém não num intervalo muito grande, e, em *Breaking Bad* a avaliação aumenta.
 
 ## Qual das séries escolhidas tem episódios de qualidade mais irregular segundo o IMDB? A diferença é grande? Pequena?
 
+Vamos utilizar um gráfico de linhas para visualizar as avaliações dos episódios das séries.
+
 ```{r}
+# American Horror Story
 escolhidas %>% 
+    filter(series_name == "American Horror Story") %>% 
     mutate(Série = series_name) %>% 
     ggplot(aes(x = series_ep,
-               y = user_rating,
-               color = Série)) +
-    geom_line()
+               y = user_rating)) +
+    geom_line(color = "salmon") +
+    xlab("Episódio") +
+    ylab("Avaliação dos usuários") +
+    ggtitle("Avaliações dos usários para cada episódio de American Horror Story")
+
+# Breaking Bad
+escolhidas %>% 
+    filter(series_name == "Breaking Bad") %>% 
+    mutate(Série = series_name) %>% 
+    ggplot(aes(x = series_ep,
+               y = user_rating)) +
+    geom_line(color = "limegreen") +
+    xlab("Episódio") +
+    ylab("Avaliação dos usuários") +
+    ggtitle("Avaliações dos usários para cada episódio de Breaking Bad")
+
+# Game of Thrones
+escolhidas %>% 
+    filter(series_name == "Game of Thrones") %>% 
+    mutate(Série = series_name) %>% 
+    ggplot(aes(x = series_ep,
+               y = user_rating)) +
+    geom_line(color = "blue",
+              alpha = .5) +
+    xlab("Episódio") +
+    ylab("Avaliação dos usuários") +
+    ggtitle("Avaliações dos usários para cada episódio de Game of Thrones")
 ```
 
+Comparando os três gráficos, vemos que as notas de *Breaking Bad* e *Game of Thrones* variam muito mas sempre numa faixa parecida de valores, e que, em *American Horror Story*, os valores das faixas onde os episódios variam vão lentamente diminuindo até pouco depois do episódio 60, e, a partir deste ponto, a faixa aumenta, dada a diferença entre o maior e menor valor do intervalo.
+As variações nos valores das avaliações pode ser medida através do desvio padrão. Como já calculamos anteriormente esta medida para *Breaking Bad* e *Game of Thrones*, vamos calculá-la agora para *American Horror Story*. 
+
+```{r}
+# Calcula o desvio padrão das avaliações dos usuários
+escolhidas %>% 
+    filter(series_name == "American Horror Story") %>%
+    group_by(series_name) %>% 
+    summarise(Desvio_Padrão = sd(user_rating)) 
+```
+
+Como, dentre as séries analisadas, o maior valor do desvio padrão (aproximadamente 0.49) foi o das avaliações de *Breaking Bad*, e observando, no gráfico, que esses valores variam muito num intervalo curto de episódios, concluímos que a série com qualidade mais irregular entre as avaliadas é *Breaking Bad*.
+
+## Episódios no início/fim da temporada são mais bem avaliados que os no meio? O que tende a ser melhor? Inícios ou finais de séries/temporadas?
+
+Pra responder esta pergunta, vamos analisar as avaliações da série eleita a mais bem avaliada entre as escolhidas, que é *Game of Thrones*. 
+
+```{r}
+
+episodios_got = escolhidas %>% 
+    filter(series_name == "Game of Thrones")
+
+episodios_got %>% 
+    ggplot(aes(x = season_ep,
+               y = user_rating)) +
+    geom_line(color = "blue",
+              alpha = .7) +
+    scale_x_continuous(breaks = seq(0, 10, 1)) +
+    facet_wrap(~ season) +
+    xlab("Episódio") +
+    ylab("Avaliação dos usuários") +
+    ggtitle("Avaliações para os episódios de cada temporada de Game of Thrones")
+
+```
+
+Podemos observar que, para *Game of Thrones*, os episódios geralmente mais bem avaliados são os finais de cada temporada. Provavelmente, isso deve-se ao fato de que as revelações e acontecimentos mais importantes da trama ocorrem nestes episódios. No caso de *Game of Thrones*, já é tradição para a série que o clímax de toda temporada sempre ocorra em seu penúltimo episódio, e é possível observar no gráfico que esse episódio, na maioria das temporadas, é o melhor ou se encontra entre os melhores avaliados de cada temporada.
