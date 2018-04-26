@@ -2,11 +2,11 @@
 title: "Dados sobre séries de TV."
 author: "Valter Lucena"
 output:
-  html_document:
-    df_print: paged
+  html_notebook:
     toc: yes
     toc_float: yes
-  html_notebook:
+  html_document:
+    df_print: paged
     toc: yes
     toc_float: yes
 ---
