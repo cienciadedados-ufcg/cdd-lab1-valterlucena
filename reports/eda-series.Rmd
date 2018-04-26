@@ -2,11 +2,11 @@
 title: "Dados sobre séries de TV."
 author: "Valter Lucena"
 output:
-  html_notebook:
-    toc: yes
-    toc_float: yes
   html_document:
     df_print: paged
+    toc: yes
+    toc_float: yes
+  html_notebook:
     toc: yes
     toc_float: yes
 ---
@@ -17,7 +17,7 @@ library(here)
 theme_set(theme_bw())
 ```
 
-Esta análise será realizada utilizando dados sobre avaliações de espisódios de séries presentes no [IMDB](https://www.imdb.com). Mais informações sobre esses dados podem ser encontradas [neste](https://github.com/nazareno/imdb-series) repositório do prof. Nazareno.
+Esta análise será realizada utilizando dados sobre avaliações de espisódios de séries presentes no [IMDB](https://www.imdb.com). Mais informações sobre esses dados podem ser encontradas [neste](https://github.com/nazareno/imdb-series) repositório do professor Nazareno Andrade.
 
 # Escolha das séries e entendimento dos dados
 
@@ -125,11 +125,12 @@ As informações que conseguimos a partir destes valores foram:
 2. A mediana de *Game of Thrones* é maior, porém por uma diferença de 0.05.
 3. O desvio padrão de *Breaking Bad* é maior que o de *Game of Thrones*. Isto significa que as notas das avaliações dos episódios de *Game of Thrones* se concentram mais próximas de um valor e não variam tanto como as de *Breaking Bad*.
 
-Nossa base de dados possui informações sobre a proporção de usuários que avaliaram o episódio de uma série com uma nota específica, que vai de 1 à 10. Juntamente com as informações conseguidas anteriormente, a série mais bem avaliada será a que possuir a menor proporção de usuários que avaliaram seus episódios com nota mínima, e a maior proporção de usuários que avaliaram seus episódios com nota máxima. Vamos analisar isto graficamente.
+Nossa base de dados possui informações sobre a proporção de usuários que avaliaram o episódio de uma série com uma nota específica, que vai de 1 à 10. Juntamente com as informações conseguidas anteriormente, a série mais bem avaliada será a que também possui a menor proporção de usuários que avaliaram seus episódios com nota mínima, e a maior proporção de usuários que avaliaram seus episódios com nota máxima. Vamos analisar isto graficamente.
 
 ```{r}
 # Mostra a proporção de episódios avaliados com nota 1
-candidatas %>% 
+escolhidas %>%
+    filter(!(series_name == "American Horror Story")) %>% 
     mutate(Séries = series_name) %>% 
     ggplot(aes(x = series_ep,
                y = (r1) * 100,
@@ -143,7 +144,8 @@ candidatas %>%
     ggtitle("Proporção de episódio que foram avaliados com nota mínima (1)")
 
 # Mostra a proporção de episódios avaliados com nota 10
-candidatas %>% 
+escolhidas %>% 
+    filter(!(series_name == "American Horror Story")) %>% 
     mutate(Séries = series_name) %>% 
     ggplot(aes(x = series_ep,
                y = (r10) * 100,
@@ -239,7 +241,6 @@ Como, dentre as séries analisadas, o maior valor do desvio padrão (aproximadam
 Pra responder esta pergunta, vamos analisar as avaliações da série eleita a mais bem avaliada entre as escolhidas, que é *Game of Thrones*. 
 
 ```{r}
-
 escolhidas %>% 
     filter(series_name == "Game of Thrones") %>% 
     ggplot(aes(x = season_ep,
@@ -251,7 +252,6 @@ escolhidas %>%
     xlab("Episódio") +
     ylab("Avaliação dos usuários") +
     ggtitle("Avaliações para os episódios de cada temporada de Game of Thrones")
-
 ```
 
 Podemos observar que, para *Game of Thrones*, os episódios geralmente mais bem avaliados são os finais de cada temporada. Provavelmente, isso deve-se ao fato de que as revelações e acontecimentos mais importantes da trama ocorrem nestes episódios. No caso de *Game of Thrones*, já é tradição para a série que o clímax de toda temporada sempre ocorra em seu penúltimo episódio, e é possível observar no gráfico que esse episódio, na maioria das temporadas, é o melhor ou se encontra entre os melhores avaliados de cada temporada.
