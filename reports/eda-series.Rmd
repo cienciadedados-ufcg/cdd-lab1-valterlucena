@@ -105,12 +105,9 @@ Como podemos observar, as notas de metade dos episódios de *Breaking Bad* e *Ga
 Examinemos, agora, algumas estatísticas sobre as avaliações dos episódios dessas duas séries. 
 
 ```{r}
-# Retira American Horror Story das séries analisadas.
-candidatas = escolhidas %>% 
-    filter(!(series_name == "American Horror Story"))
-
 # Reúne algumas estatísticas sobre as avaliações dos episódios.
-candidatas %>% 
+escolhidas %>% 
+    filter(!(series_name == "American Horror Story")) %>% 
     group_by(series_name) %>% 
     summarise(Máximo = max(user_rating),
               Mínimo = min(user_rating),
@@ -243,10 +240,8 @@ Pra responder esta pergunta, vamos analisar as avaliações da série eleita a m
 
 ```{r}
 
-episodios_got = escolhidas %>% 
-    filter(series_name == "Game of Thrones")
-
-episodios_got %>% 
+escolhidas %>% 
+    filter(series_name == "Game of Thrones") %>% 
     ggplot(aes(x = season_ep,
                y = user_rating)) +
     geom_line(color = "blue",
