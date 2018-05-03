@@ -223,6 +223,22 @@ escolhidas %>%
     ggtitle("Avaliações dos usários para cada episódio de Game of Thrones")
 ```
 
+```{r}
+# talvez fosse mais fácil visualizar a comparação das séries deixando todas num mesmo gráfico. ótimo relatório!
+
+escolhidas %>% 
+    filter(series_name == c("American Horror Story", "Breaking Bad", "Game of Thrones")) %>% 
+    mutate(Série = series_name) %>% 
+    ggplot(aes(x = series_ep,
+               y = user_rating, 
+               color = series_name)) +
+    geom_line() +
+    xlab("Episódio") +
+    ylab("Avaliação dos usuários") +
+    ggtitle("Avaliações dos usários para cada episódio")
+```
+
+
 Comparando os três gráficos, vemos que as notas de *Breaking Bad* e *Game of Thrones* variam muito mas sempre numa faixa parecida de valores, e que, em *American Horror Story*, os valores das faixas onde os episódios variam vão lentamente diminuindo até pouco depois do episódio 60, e, a partir deste ponto, a faixa aumenta, dada a diferença entre o maior e menor valor do intervalo.
 As variações nos valores das avaliações pode ser medida através do desvio padrão. Como já calculamos anteriormente esta medida para *Breaking Bad* e *Game of Thrones*, vamos calculá-la agora para *American Horror Story*. 
 
