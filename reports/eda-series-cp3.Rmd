@@ -1,0 +1,98 @@
+---
+title: "Minhas perguntas"
+author: "Valter Lucena"
+date: "3 de maio de 2018"
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_float: yes
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(here)
+theme_set(theme_bw())
+```
+
+Esta análise será realizada utilizando dados sobre avaliações de espisódios de séries presentes no [IMDB](https://www.imdb.com). Mais informações sobre esses dados podem ser encontradas [neste](https://github.com/nazareno/imdb-series) repositório do professor Nazareno Andrade.
+
+# Escolha das séries e entendimento dos dados
+
+Primeiramente, vamos importar os dados e selecionar as séries que serão analisadas.
+
+```{r}
+episodios = read_csv(here("data/series_from_imdb.csv"), 
+                    progress = FALSE,
+                    col_types = cols(.default = col_double(), 
+                                     series_name = col_character(), 
+                                     episode = col_character(), 
+                                     url = col_character(),
+                                     season = col_character()))
+```
+
+Resolvi analisar séries que possuem a mesma quantidade de temporadas e uma quantidade semelhante de episódios por temporada que *Game of Thrones*. Até a época onde esses dados foram coletados, existiam apenas informações sobre os episódios das suas 6 primeiras temporadas. Sabendo que cada temporada de *Game of Thrones* possui 10 episódios, vamos selecionar séries que possuem entre 10 e 13 episódios por temporada.
+
+```{r}
+episodios %>%
+    mutate(Série = series_name) %>% 
+    group_by(Série) %>% 
+    summarise(Temporadas = max(season), 
+              `Episódios por temporada` = max(season_ep)) %>% 
+    filter(Temporadas == 6, 
+           (`Episódios por temporada` >= 10), 
+           (`Episódios por temporada` <= 13))
+```
+
+Analisaremos, então, *American Horror Story*, *Game of Thrones* e *Homeland*.
+
+```{r}
+series_escolhidas = episodios %>% 
+    filter(series_name %in% c("American Horror Story", 
+                              "Game of Thrones", 
+                              "Homeland"))
+```
+
+## Existe alguma relação entre o número de avaliações e avaliação geral das séries?
+
+```{r}
+series_escolhidas %>% 
+    ggplot(aes(x = user_rating,
+               y = user_votes,
+               color = series_name)) +
+    geom_jitter(alpha = .5) +
+    facet_wrap(~ series_name)
+
+series_escolhidas %>% 
+    group_by(series_name) %>% 
+    mutate(correlação = cor(user_rating, 
+                            user_votes,
+                            method = "pearson")) %>% 
+    select(series_name, correlação) %>% 
+    unique()
+
+```
+
+
+## A temporada mais bem avaliada da série possui uma maior proporção de notas 10?
+
+```{r}
+series_escolhidas %>% 
+    ggplot(aes(x = season,
+               y = user_rating,
+               fill = series_name)) +
+    geom_col(position = "identity") +
+    facet_wrap(~ series_name,
+               ncol = 1)
+
+series_escolhidas %>% 
+    ggplot(aes(x = season,
+               y = r10 * 100,
+               fill = series_name)) +
+    geom_col(position = "identity") +
+    facet_wrap(~ series_name)
+```
+
