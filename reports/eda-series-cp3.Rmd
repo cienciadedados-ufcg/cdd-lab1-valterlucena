@@ -56,6 +56,10 @@ series_escolhidas = episodios %>%
                               "Homeland"))
 ```
 
+***
+
+# Perguntas
+
 ## Existe alguma relação entre o número de avaliações e avaliação geral das séries?
 
 ```{r}
@@ -100,13 +104,48 @@ series_escolhidas %>%
 
 Com esses valores, obtemos as seguintes informações:
 
-* Em nenhuma série a quantidade de votos influencia negativamente na sua avaliação.
 * Para *Homeland* e *American Horror Story* a associação é fraca, sendo mais significativa em *American Horror Story* e bastante fraca em *Homeland*.
 * Em *Game of Thrones*, a associação é moderadamente significativa, ainda que não seja tão forte.
 
 Assim, podemos concluir que, para as séries analisadas, quanto maior a quantidade de votos, maior é avaliação da série. Esse aumento é mais forte em *American Horror Story* e *Game of Thrones* do que em *Homeland*, mas não é tão significativo. 
 
-É importante ressaltar, que, como a correlação calcula a associação linear entre as variáveis, a observação cuja quantidade de votos é menor que 10000 com uma avaliação um pouco maior que 5 faz com que a nuvem de pontos da série *Homeland* aproxime-se de uma reta horizontal, sendo esta, talvez, a possível causa para a correlação possuir um valor tão baixo. Para *Game of Thrones*, a grande quantidade de votos com avaliação maior que 9 pode ser a razão da série possuir o maior valor de correlação entre as séries analisadas.
+É importante ressaltar, que, como a correlação calcula a associação linear entre as variáveis, a observação cuja quantidade de votos é menor que 10000 com uma avaliação um pouco maior que 5 faz com que a nuvem de pontos da série *Homeland* aproxime-se de uma reta horizontal, sendo esta, talvez, a possível causa para a correlação possuir um valor tão baixo. Vamos analisar mais de perto a série *Homeland* e tentar entender por que isso acontece.
+
+### A quantidade de avaliações de *Homeland* mudou ao longo da série?
+
+Vamos ver como as avaliações se comportam ao longo da série.
+
+```{r}
+series_escolhidas %>% 
+    filter(series_name %in% c("Homeland")) %>% 
+    ggplot(aes(x = series_ep,
+               y = user_votes)) +
+    geom_point(color = "dodgerblue3") +
+    scale_x_continuous(breaks = seq(0, 72, 12)) +
+    geom_line(color = "dodgerblue") +
+    labs(x = "Episódio",
+         y = "Quantidade de avaliações")
+```
+
+A partir do gráfico é possível perceber que a série possuía, mesmo com picos, uma quantidade parecida de votos para seus episódios até aproximadamente seu episódio 48, onde a quantidade começa a diminuir. Por fins de curiosidade, vejamos se o mesmo acontece com a avaliação da série.
+
+```{r}
+series_escolhidas %>% 
+    filter(series_name %in% c("Homeland")) %>% 
+    ggplot(aes(x = series_ep,
+               y = user_rating)) +
+    geom_point(color = "dodgerblue3") +
+    scale_x_continuous(breaks = seq(1, 72, 12)) +
+    geom_line(color = "dodgerblue") +
+    labs(x = "Episódio",
+         y = "Avaliação")
+```
+
+Como observado anteriormente com a quantidade de avaliações, a avaliação dos episódios mantêm-se numa faixa parecida até aproximadamente o episódio 48, mas aqui, a avaliação cai drasticamente. Acessando as [análises dos usuários](https://www.imdb.com/title/tt3952170/reviews) do episódio no [IMDB](https://www.imdb.com), uma opinião comum entre os que o avaliaram é de que este se trata do pior episódio da série. 
+
+É interessante observar como os dados refletem essas opiniões, pois, a partir dos dados, podemos concluir que o episódio mais mal avaliado da série é um dos que possuem a maior quantidade de avaliações, e, pelas opiniões dos usuários, que essas avaliações vêm de telespectadores da série que ficaram muito instatisfeitos com os acontecimentos do episódio.
+
+***
 
 ## A temporada mais bem avaliada da série possui uma maior proporção de notas 10?
 
