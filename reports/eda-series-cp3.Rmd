@@ -3,11 +3,11 @@ title: "Minhas perguntas"
 author: "Valter Lucena"
 date: "3 de maio de 2018"
 output:
-  html_notebook:
-    toc: yes
-    toc_float: yes
   html_document:
     df_print: paged
+    toc: yes
+    toc_float: yes
+  html_notebook:
     toc: yes
     toc_float: yes
 ---
@@ -64,12 +64,13 @@ series_escolhidas %>%
     ggplot(aes(x = user_rating,
                y = user_votes,
                color = Séries)) +
-    geom_jitter(alpha = .3) +
+    geom_jitter(alpha = .5,
+                size = 3) +
     scale_y_continuous(breaks = seq(0, 150000, 10000)) +
     facet_wrap(~ series_name)
 ```
 
-Graficamente, podemos observar que *American Horror Story* e *Homeland* se comportam de forma parecida, com as avaliações mais concentradas entre 8 e 9 com menos de 10000 votantes. Já em *Game of Thrones*, percebe-se que todas as avaliações possuem nota maior que 8, e que esse valor aumenta com a quantidade de votos. Podemos usar, aqui, uma medida chamada **correlação** para verificar se duas variáveis se associam linearmente. Essa medida é um valor entre -1 e 1 e é classificada da seguinte forma:
+Graficamente, podemos observar que *American Horror Story* e *Homeland* se comportam de forma parecida, com as avaliações mais concentradas entre 8 e 9 com menos de 10000 votantes. Já em *Game of Thrones*, percebe-se que todas as avaliações possuem notas maiores ou iguais a 8, e que esse valor aumenta com a quantidade de votos. Podemos usar, aqui, uma medida chamada **correlação** para verificar se duas variáveis se associam linearmente. Essa medida é um valor entre -1 e 1 e é classificada da seguinte forma:
 
 * A associação é dita fraca se o módulo de seu valor aproxima-se de 0, e forte quando aproxima-se de 1.
 * Se o valor da correlação é negativo, os valores de uma variável diminuem quando os da outra aumentam, e, se for positivo, aumentam quando os valores da outra variável também aumentam.
@@ -109,27 +110,43 @@ Assim, podemos concluir que, para as séries analisadas, quanto maior a quantida
 
 ## A temporada mais bem avaliada da série possui uma maior proporção de notas 10?
 
+Vejamos, primeiramente, qual a temporada mais bem avaliada de cada série. A temporada mais bem avaliada aqui será a que possuir a maior nota entre as temporadas.
+
 ```{r}
 series_escolhidas %>% 
     group_by(series_name, season) %>% 
-    summarise(Mediana = median(user_rating)) %>% 
+    summarise(Avaliação = max(user_rating)) %>% 
     ungroup() %>% 
-    select(series_name, season, Mediana) %>% 
-    ggplot(aes(x = season,
-               y = Mediana,
-               fill = series_name,
-               label = round(Mediana, 2))) +
-    geom_col(position = "identity") +
-    geom_text(position = position_stack(vjust = 0.5),
-              size = 3) +
-    scale_y_continuous(breaks = seq(0, 10, 3)) +
-    theme(legend.position = "bottom") +
-    facet_wrap(~ series_name)
+    select(series_name, season, Avaliação) %>% 
+    mutate(Séries = series_name, Temporada = season) %>% 
+    ggplot(aes(x = Temporada,
+               y = Avaliação,
+               color = Séries)) +
+    geom_point(size = 3) +
+    geom_segment(aes(x = Temporada,
+                     xend = Temporada,
+                     y = 0,
+                     yend = Avaliação)) +
+    facet_wrap(~Séries)
+```
 
+Com o gráfico, observamos que as temporadas mais bem avaliadas de *American Horror Story*, *Game of Thrones* e *Homeland* são, respectivamente, a 2ª, 6ª e 4ª temporadas.
+
+Observemos agora, como se comporta a proporção de notas 10 por temporada.
+
+```{r}
 series_escolhidas %>% 
+    mutate(Séries = series_name) %>% 
     ggplot(aes(x = season,
                y = r10 * 100,
-               fill = series_name)) +
+               fill = Séries)) +
     geom_col(position = "identity") +
-    facet_wrap(~ series_name)
+    facet_wrap(~ series_name) +
+    labs(x = "Temporada",
+         y = "Proporção de notas 10 (%)") +
+    theme(legend.position = "bottom")
 ```
+
+Se procurarmos neste gráfico, as temporadas mais bem avaliadas que encontramos no gráfico anterior, iremos perceber que essas temporadas são as que possuem a maior proporção de notas 10 (*Game of Thrones* e *Homeland*), ou se encontram entre as que possuem a maior proporção (*American Horror Story*).
+
+Logo, é possível concluir, para as séries escolhidas, que a temporada mais bem avaliada de cada série possui uma maior proporção de avaliações com notas 10.
