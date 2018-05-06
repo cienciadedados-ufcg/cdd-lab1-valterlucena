@@ -3,11 +3,11 @@ title: "Minhas perguntas"
 author: "Valter Lucena"
 date: "3 de maio de 2018"
 output:
-  html_document:
-    df_print: paged
+  html_notebook:
     toc: yes
     toc_float: yes
-  html_notebook:
+  html_document:
+    df_print: paged
     toc: yes
     toc_float: yes
 ---
@@ -34,7 +34,7 @@ episodios = read_csv(here("data/series_from_imdb.csv"),
                                      season = col_character()))
 ```
 
-Resolvi analisar séries que possuem a mesma quantidade de temporadas e uma quantidade semelhante de episódios por temporada que *Game of Thrones*. Até a época onde esses dados foram coletados, existiam apenas informações sobre os episódios das suas 6 primeiras temporadas. Sabendo que cada temporada de *Game of Thrones* possui 10 episódios, vamos selecionar séries que possuem entre 10 e 13 episódios por temporada.
+Resolvi analisar séries que possuem a mesma quantidade de temporadas e uma quantidade semelhante de episódios por temporada que *Game of Thrones*. Até a época onde esses dados foram coletados, existiam apenas informações sobre os episódios das suas 6 primeiras temporadas. Sabendo que cada temporada de *Game of Thrones* possui 10 episódios, vamos selecionar séries que possuem um número parecido de episódios por temporada. 
 
 ```{r}
 episodios %>%
@@ -60,33 +60,71 @@ series_escolhidas = episodios %>%
 
 ```{r}
 series_escolhidas %>% 
+    mutate(Séries = series_name) %>% 
     ggplot(aes(x = user_rating,
                y = user_votes,
-               color = series_name)) +
-    geom_jitter(alpha = .5) +
+               color = Séries)) +
+    geom_jitter(alpha = .3) +
+    scale_y_continuous(breaks = seq(0, 150000, 10000)) +
     facet_wrap(~ series_name)
+```
+
+Graficamente, podemos observar que *American Horror Story* e *Homeland* se comportam de forma parecida, com as avaliações mais concentradas entre 8 e 9 com menos de 10000 votantes. Já em *Game of Thrones*, percebe-se que todas as avaliações possuem nota maior que 8, e que esse valor aumenta com a quantidade de votos. Podemos usar, aqui, uma medida chamada **correlação** para verificar se duas variáveis se associam linearmente. Essa medida é um valor entre -1 e 1 e é classificada da seguinte forma:
+
+* A associação é dita fraca se o módulo de seu valor aproxima-se de 0, e forte quando aproxima-se de 1.
+* Se o valor da correlação é negativo, os valores de uma variável diminuem quando os da outra aumentam, e, se for positivo, aumentam quando os valores da outra variável também aumentam.
+
+Utilizaremos a **correlação de Pearson** para isso, pois a mesma calcula a correlação entre duas variáveis contínuas.
+
+```{r}
 
 series_escolhidas %>% 
     group_by(series_name) %>% 
-    mutate(correlação = cor(user_rating, 
+    mutate(Séries = series_name,
+           correlacao = cor(user_rating, 
                             user_votes,
                             method = "pearson")) %>% 
-    select(series_name, correlação) %>% 
-    unique()
-
+    ungroup() %>% 
+    select(Séries, correlacao) %>% 
+    unique() %>% 
+    ggplot(aes(x = reorder(Séries, correlacao),
+               y = correlacao,
+               fill = Séries,
+               label = round(correlacao, 2))) +
+    geom_col() +
+    geom_text(position = position_stack(vjust = 0.5)) +
+    labs(x = "Séries",
+         y = "Correlação (Pearson)")
 ```
 
+Com esses valores, obtemos as seguintes informações:
+
+* Em nenhuma série a quantidade de votos influencia negativamente na sua avaliação.
+* Para *Homeland* e *American Horror Story* a associação é fraca, sendo mais significativa em *American Horror Story* e bastante fraca em *Homeland*.
+* Em *Game of Thrones*, a associação é moderadamente significativa, ainda que não seja tão forte.
+
+Assim, podemos concluir que, para as séries analisadas, quanto maior a quantidade de votos, maior é avaliação da série. Esse aumento é mais forte em *American Horror Story* e *Game of Thrones* do que em *Homeland*, mas não é tão significativo. 
+
+É importante ressaltar, que, como a correlação calcula a associação linear entre as variáveis, a observação cuja quantidade de votos é menor que 10000 com uma avaliação um pouco maior que 5 faz com que a nuvem de pontos da série *Homeland* aproxime-se de uma reta horizontal, sendo esta, talvez, a possível causa para a correlação possuir um valor tão baixo. Para *Game of Thrones*, a grande quantidade de votos com avaliação maior que 9 pode ser a razão da série possuir o maior valor de correlação entre as séries analisadas.
 
 ## A temporada mais bem avaliada da série possui uma maior proporção de notas 10?
 
 ```{r}
 series_escolhidas %>% 
+    group_by(series_name, season) %>% 
+    summarise(Mediana = median(user_rating)) %>% 
+    ungroup() %>% 
+    select(series_name, season, Mediana) %>% 
     ggplot(aes(x = season,
-               y = user_rating,
-               fill = series_name)) +
+               y = Mediana,
+               fill = series_name,
+               label = round(Mediana, 2))) +
     geom_col(position = "identity") +
-    facet_wrap(~ series_name,
-               ncol = 1)
+    geom_text(position = position_stack(vjust = 0.5),
+              size = 3) +
+    scale_y_continuous(breaks = seq(0, 10, 3)) +
+    theme(legend.position = "bottom") +
+    facet_wrap(~ series_name)
 
 series_escolhidas %>% 
     ggplot(aes(x = season,
@@ -95,4 +133,3 @@ series_escolhidas %>%
     geom_col(position = "identity") +
     facet_wrap(~ series_name)
 ```
-
