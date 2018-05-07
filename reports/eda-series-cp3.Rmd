@@ -189,3 +189,55 @@ series_escolhidas %>%
 Se procurarmos neste gráfico, as temporadas mais bem avaliadas que encontramos no gráfico anterior, iremos perceber que essas temporadas são as que possuem a maior proporção de notas 10 (*Game of Thrones* e *Homeland*), ou se encontram entre as que possuem a maior proporção (*American Horror Story*).
 
 Logo, é possível concluir, para as séries escolhidas, que a temporada mais bem avaliada de cada série possui uma maior proporção de avaliações com notas 10.
+
+Como discutimos anteriormente, uma outra forma de verificar associação entre variáveis é utilizando a correlação. Vejamos, agora, se a conclusão que aqui chegamos mantém-se ao verificar a correlação entre a proporção de notas 10 e a avaliação da série.
+
+### A avaliação da série está, de alguma forma, associada com a proporção de notas 10 que seus episódios recebem?
+
+Primeiramente, vamos utilizar um gráfico de pontos para verificar a distribuição das observações.
+
+```{r}
+series_escolhidas %>% 
+    mutate(Séries = series_name) %>% 
+    ggplot(aes(x = user_rating,
+               y = r10 * 100,
+               color = Séries)) +
+    geom_jitter(alpha = .6,
+                size = 2) +
+    scale_y_continuous(breaks = seq(0, 1, 0.10)) +
+    facet_wrap(~series_name) +
+    labs(x = "Avaliação",
+         y = "Proporção de notas 10 (%)")
+```
+
+Observamos, pelo gráfico, que a maioria das observações de *American Horror Story* concentram-se na mesma faixa de proporção para o mesmo intervalo de notas. A maioria dos episódios que possuem uma nota na faixa entre aproxidamente 7.5 e 9 possuem entre 20% e 40% de notas 10. 
+
+Em *Homeland*, essa proporção concentra-se entre 10% e 30% no intervalo de notas que vai de 7 até aproximadamente 9. Mais uma vez observamos o ponto destoante, que agora sabemos que pertence ao episódio 48. Uma observação a se fazer aqui é que, mesmo com quase 80% de notas 10, a avaliação do episódio ainda foi muito baixa. 
+
+Para *Game of Thrones*, os dados estão mais distruibuidos em relação a proporção, com todas as observações com notas entre 8 e 10.
+
+Vejamos agora, a correlação linear entre a avaliação dos episódios e a proporção de notas 10. Utilizaremos a correlação de Pearson, também, pois as duas variáveis são contínuas.
+
+```{r}
+series_escolhidas %>% 
+    group_by(series_name) %>% 
+    mutate(Séries = series_name,
+           correlacao = cor(user_rating, 
+                            r10,
+                            method = "pearson")) %>% 
+    ungroup() %>% 
+    select(Séries, correlacao) %>% 
+    unique() %>% 
+    ggplot(aes(x = reorder(Séries, correlacao),
+               y = correlacao,
+               fill = Séries,
+               label = round(correlacao, 2))) +
+    geom_col() +
+    geom_text(position = position_stack(vjust = 0.5)) +
+    labs(x = "Série",
+         y = "Correlação (Pearson)")
+```
+
+Os resultados de correlação entre proporção de votos e avaliação e quantidade de votos e avaliação não mudam muito. Aqui, mais uma vez, observamos que o valor para *Homeland* aproxima-se de 0, que, entre outros fatores, pode ter sido causado pela avaliações do episódio 48, e para *American Horror Story* e *Game of Thrones*, o valor é um pouco maior e mais significativo, mas não tão significativo assim. A partir disso, concluímos que há uma associação entre a proporção de notas 10 dadas a um episódio da série, e a avaliação geral da mesma. Esta associação é muito fraca em *Homeland*, e moderatamente significativa em *American Horror Story* e *Game of Thrones*.
+
+***
