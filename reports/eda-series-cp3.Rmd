@@ -71,7 +71,10 @@ series_escolhidas %>%
     geom_jitter(alpha = .5,
                 size = 3) +
     scale_y_continuous(breaks = seq(0, 150000, 10000)) +
-    facet_wrap(~ series_name)
+    facet_wrap(~ series_name) +
+    labs(title = "Relação entre avaliações e a quantidade de avaliação dos episódios da série",
+         x = "Nota do episódio",
+         y = "Avaliação")
 ```
 
 Graficamente, podemos observar que *American Horror Story* e *Homeland* se comportam de forma parecida, com as avaliações mais concentradas entre 8 e 9 com menos de 10000 votantes. Já em *Game of Thrones*, percebe-se que todas as avaliações possuem notas maiores ou iguais a 8, e que esse valor aumenta com a quantidade de votos. Podemos usar, aqui, uma medida chamada **correlação** para verificar se duas variáveis se associam linearmente. Essa medida é um valor entre -1 e 1 e é classificada da seguinte forma:
@@ -98,7 +101,8 @@ series_escolhidas %>%
                label = round(correlacao, 2))) +
     geom_col() +
     geom_text(position = position_stack(vjust = 0.5)) +
-    labs(x = "Séries",
+    labs(title = "Correlação entre avaliações e quantidade de avaliações dos episódios",
+         x = "Séries",
          y = "Correlação (Pearson)")
 ```
 
@@ -123,7 +127,8 @@ series_escolhidas %>%
     geom_point(color = "dodgerblue3") +
     scale_x_continuous(breaks = seq(0, 72, 12)) +
     geom_line(color = "dodgerblue") +
-    labs(x = "Episódio",
+    labs(title = "Quantidade de avaliações ao longo dos episódios de Homeland",
+         x = "Episódio",
          y = "Quantidade de avaliações")
 ```
 
@@ -137,7 +142,8 @@ series_escolhidas %>%
     geom_point(color = "dodgerblue3") +
     scale_x_continuous(breaks = seq(1, 72, 12)) +
     geom_line(color = "dodgerblue") +
-    labs(x = "Episódio",
+    labs(title = "Avaliação ao longo dos episódios de Homeland",
+         x = "Episódio",
          y = "Avaliação")
 ```
 
@@ -166,7 +172,8 @@ series_escolhidas %>%
                      xend = Temporada,
                      y = 0,
                      yend = Avaliação)) +
-    facet_wrap(~Séries)
+    facet_wrap(~Séries) +
+    labs(title = "Avaliação geral de cada temporada")
 ```
 
 Com o gráfico, observamos que as temporadas mais bem avaliadas de *American Horror Story*, *Game of Thrones* e *Homeland* são, respectivamente, a 2ª, 6ª e 4ª temporadas.
@@ -181,7 +188,8 @@ series_escolhidas %>%
                fill = Séries)) +
     geom_col(position = "identity") +
     facet_wrap(~ series_name) +
-    labs(x = "Temporada",
+    labs(title = "Proporção de avaliações com nota 10 por temporada",
+         x = "Temporada",
          y = "Proporção de notas 10 (%)") +
     theme(legend.position = "bottom")
 ```
@@ -206,7 +214,8 @@ series_escolhidas %>%
                 size = 2) +
     scale_y_continuous(breaks = seq(0, 1, 0.10)) +
     facet_wrap(~series_name) +
-    labs(x = "Avaliação",
+    labs(title = "Relação entre proporção de notas 10 e avaliações dos episódios",
+         x = "Avaliação",
          y = "Proporção de notas 10 (%)")
 ```
 
@@ -234,7 +243,8 @@ series_escolhidas %>%
                label = round(correlacao, 2))) +
     geom_col() +
     geom_text(position = position_stack(vjust = 0.5)) +
-    labs(x = "Série",
+    labs(title = "Correlação entre avaliação dos episódios e proporção de notas 10",
+         x = "Série",
          y = "Correlação (Pearson)")
 ```
 
