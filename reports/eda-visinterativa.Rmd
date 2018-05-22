@@ -1,0 +1,65 @@
+---
+title: "Ainda sobre séries de TV."
+author: "Valter Lucena"
+date: '2018-05-22'
+output:
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_float: yes
+  html_notebook:
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(here)
+library(plotly)
+theme_set(theme_bw())
+```
+
+Ainda utilizando os dados sobre avaliações de séries no [IMDB](https://www.imdb.com), vamos agora utilizar de uma visualização interativa para tentar responder à uma das perguntas da análise anterior. Novamente, mais informações sobre esses dados estão disponíveis [neste](https://github.com/nazareno/imdb-series) repositório do professor Nazareno Andrade.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# importando os dados
+episodios = read_csv(here("data/series_from_imdb.csv"), 
+                    progress = FALSE,
+                    col_types = cols(.default = col_double(), 
+                                     series_name = col_character(), 
+                                     episode = col_character(), 
+                                     url = col_character(),
+                                     season = col_character()))
+```
+
+Continuaremos analisando apenas os dados dos episódios das seis primeiras temporadas de *American Horror Story*, *Game of Thrones* e *Homeland*.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# contém apenas informações de episódios das séries escolhidas
+series_escolhidas = episodios %>% 
+    filter(series_name %in% c("American Horror Story", 
+                              "Game of Thrones", 
+                              "Homeland"))
+```
+
+***
+
+## A avaliação da série está, de alguma forma, associada com a proporção de notas 10 que seus episódios recebem?
+
+Vamos utilizar um gráfico de pontos para verificar a distribuição das observações.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+series_escolhidas %>% 
+    mutate(`Proporção de notas 10` = r10) %>%  
+    plot_ly(y = ~user_rating,
+            x = ~series_name,
+            text = ~paste("Episódio: ", episode, '<br>Season', season),
+            color = ~`Proporção de notas 10`,
+            size = ~`Proporção de notas 10`,
+            type = 'scatter')  %>% 
+    layout(title = "Relação entre proporção de notas 10 e avaliação do usuário recebida por episódio",
+           xaxis = list(title = "Séries"),
+           yaxis = list(title = "Avaliação do usuário"))
+
+```
+
