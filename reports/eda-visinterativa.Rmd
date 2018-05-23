@@ -1,7 +1,7 @@
 ---
 title: "Ainda sobre séries de TV."
 author: "Valter Lucena"
-date: '2018-05-22'
+date: 2018-05-22
 output:
   html_document:
     df_print: paged
@@ -51,15 +51,23 @@ Vamos utilizar um gráfico de pontos para verificar a distribuição das observa
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 series_escolhidas %>% 
     mutate(`Proporção de notas 10` = r10) %>%  
-    plot_ly(y = ~user_rating,
-            x = ~series_name,
+    plot_ly(x = ~series_name,
+            y = ~user_rating,
             text = ~paste("Episódio: ", episode, '<br>Season', season),
             color = ~`Proporção de notas 10`,
             size = ~`Proporção de notas 10`,
             type = 'scatter')  %>% 
-    layout(title = "Relação entre proporção de notas 10 e avaliação do usuário recebida por episódio",
-           xaxis = list(title = "Séries"),
-           yaxis = list(title = "Avaliação do usuário"))
+    layout(title = "Relação entre proporção de notas 10 e avaliação do usuário por episódio",
+           titlefont = list(size = 12), 
+           xaxis = list(title = "Séries",
+                        titlefont = list(size = 12)),
+           yaxis = list(title = "Avaliação do usuário",
+                        titlefont = list(size = 12)))
 
 ```
 
+Neste gráfico, quanto maior e mais amarela é uma bolinha, maior é a proporção de notas 10. A partir disso, observamos que existem mais bolinhas amarelas ou quase amarelas em *Game of Thrones* que nas outras séries avaliadas. Observamos, também, que as bolinhas se concentram em faixas mais altas de avaliações se elas são mais amarelas, com exceção do [fatídico episódio de *Homeland*](https://www.imdb.com/title/tt3952170/) que conseguiu ser o mais mal avaliado da série mesmo possuindo uma alta proporção de notas 10. 
+
+Em *American Horror Story*, as avaliações variam, em sua maioria, numa pequena faixa de avaliações, com uma proporção parecida de notas 10. Já em *Homeland*, a proporção de notas 10 muda entre os episódios, e a maioria das suas avaliações variam num intervalo maior que nas outras séries analisadas. Para *Game of Thrones*, a proporção de notas 10 é majoritariamente alta, e todas as avaliações se concentram numa faixa mais alta de valores, se aproximando, inclusive, de 10.
+
+Podemos concluir então, que a avaliação da série está associada à proporção de notas 10 que seus episódios recebem, pois, quanto maior esta proporção, maior é a nota da sua avaliação. 
