@@ -64,20 +64,20 @@ series_escolhidas = episodios %>%
 
 ```{r}
 series_escolhidas %>% 
-    mutate(Séries = series_name) %>% 
     ggplot(aes(x = user_rating,
                y = user_votes,
-               color = Séries)) +
+               color = series_name)) +
     geom_jitter(alpha = .5,
                 size = 3) +
     scale_y_continuous(breaks = seq(0, 150000, 10000)) +
     facet_wrap(~ series_name) +
     labs(title = "Relação entre avaliações e a quantidade de avaliação dos episódios da série",
          x = "Nota do episódio",
-         y = "Avaliação")
+         y = "Avaliação") +
+    guides(color = guide_legend(title = "Séries"))
 ```
 
-Graficamente, podemos observar que *American Horror Story* e *Homeland* se comportam de forma parecida, com as avaliações mais concentradas entre 8 e 9 com menos de 10000 votantes. Já em *Game of Thrones*, percebe-se que todas as avaliações possuem notas maiores ou iguais a 8, e que esse valor aumenta com a quantidade de votos. Podemos usar, aqui, uma medida chamada **correlação** para verificar se duas variáveis se associam linearmente. Essa medida é um valor entre -1 e 1 e é classificada da seguinte forma:
+Graficamente, podemos observar que *American Horror Story* e *Homeland* se comportam de forma parecida, com as avaliações mais concentradas entre 8 e 9 com menos de 10000 votantes por episódio. Já em *Game of Thrones*, percebe-se que todas as avaliações possuem notas maiores ou iguais a 8, e que esse valor aumenta com a quantidade de votos. Podemos usar, aqui, uma medida chamada **correlação** para verificar se duas variáveis se associam linearmente. Essa medida é um valor entre -1 e 1 e é classificada da seguinte forma:
 
 * A associação é dita fraca se o módulo de seu valor aproxima-se de 0, e forte quando aproxima-se de 1.
 * Se o valor da correlação é negativo, os valores de uma variável diminuem quando os da outra aumentam, e, se for positivo, aumentam quando os valores da outra variável também aumentam.
@@ -251,3 +251,7 @@ series_escolhidas %>%
 Os resultados de correlação entre proporção de votos e avaliação e quantidade de votos e avaliação não mudam muito. Aqui, mais uma vez, observamos que o valor para *Homeland* aproxima-se de 0, que, entre outros fatores, pode ter sido causado pela avaliações do episódio 48, e para *American Horror Story* e *Game of Thrones*, o valor é um pouco maior e mais significativo, mas não tão significativo assim. A partir disso, concluímos que há uma associação entre a proporção de notas 10 dadas a um episódio da série, e a avaliação geral da mesma. Esta associação é muito fraca em *Homeland*, e moderatamente significativa em *American Horror Story* e *Game of Thrones*.
 
 ***
+
+#Comentários
+
+  Muito bom relatório, parabéns! As explicações foram boas e o texto foi bem escrito, facilitando muito entender o raciocínio utilizado. A abordagem para conectar a pergunta que foi gerada com a pergunta da mesma foi muito boa também. Como sugestão, tentei mostrar uma outra forma para aplicar a legenda, sem precisar modificar o nome da variável, mas o resultado final é o mesmo do seu.
